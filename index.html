@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HOSA | تكييفات - تركيب وصيانة وبيع</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&family=Cairo:wght@300;400;600;700&display=swap" rel="stylesheet">
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<style>
+  :root{
+    --navy:#0A1E28;
+    --navy-2:#0F2C3A;
+    --ice:#DFF6FB;
+    --ice-2:#B6E8F2;
+    --teal:#1B8A8C;
+    --teal-2:#12666A;
+    --ember:#FF7A45;
+    --ember-2:#E85C2A;
+    --paper:#F5FAFA;
+    --slate:#3C525A;
+    --line:rgba(255,255,255,0.12);
+    --radius:18px;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--slate);
+    font-family:'Cairo',sans-serif;
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+  }
+  h1,h2,h3,.brand,.stat-num{font-family:'Tajawal',sans-serif;}
+  a{color:inherit;text-decoration:none;}
+  ::selection{background:var(--teal);color:#fff;}
+
+  /* ===== TOP BANNER (config warning) ===== */
+  #configBanner{
+    display:none;
+    background:var(--ember);
+    color:#fff;
+    text-align:center;
+    padding:10px 16px;
+    font-size:14px;
+    font-weight:700;
+    position:relative;
+    z-index:999;
+  }
+
+  /* ===== NAV ===== */
+  header{
+    position:sticky;top:0;z-index:500;
+    background:rgba(10,30,40,0.92);
+    backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--line);
+  }
+  .nav-wrap{
+    max-width:1180px;margin:0 auto;padding:14px 24px;
+    display:flex;align-items:center;justify-content:space-between;
+  }
+  .brand{color:#fff;font-size:26px;font-weight:900;letter-spacing:1px;display:flex;align-items:center;gap:8px;}
+  .brand .dot{width:10px;height:10px;border-radius:50%;background:var(--ember);display:inline-block;}
+  nav.links{display:flex;gap:28px;}
+  nav.links a{color:var(--ice-2);font-weight:600;font-size:15px;transition:color .2s;}
+  nav.links a:hover{color:#fff;}
+  .nav-cta{
+    background:var(--ember);color:#fff;padding:10px 20px;border-radius:999px;
+    font-weight:700;font-size:14px;white-space:nowrap;
+  }
+  .nav-cta:hover{background:var(--ember-2);}
+  .burger{display:none;background:none;border:none;color:#fff;font-size:26px;cursor:pointer;}
+
+  /* ===== HERO ===== */
+  .hero{
+    position:relative;
+    background:radial-gradient(circle at 80% 20%, #123844 0%, var(--navy) 55%, #071820 100%);
+    color:#fff;
+    padding:70px 24px 90px;
+    overflow:hidden;
+  }
+  .hero-wrap{
+    max-width:1180px;margin:0 auto;
+    display:grid;grid-template-columns:1.1fr 0.9fr;gap:40px;align-items:center;
+  }
+  .eyebrow{
+    display:inline-flex;align-items:center;gap:8px;
+    background:rgba(255,255,255,0.08);border:1px solid var(--line);
+    padding:6px 14px;border-radius:999px;font-size:13px;color:var(--ice-2);font-weight:600;
+    margin-bottom:22px;
+  }
+  .hero h1{
+    font-size:clamp(34px,5vw,58px);
+    font-weight:900;line-height:1.15;margin:0 0 20px;
+  }
+  .hero h1 span{color:var(--ember);}
+  .hero p.lead{
+    font-size:18px;line-height:1.8;color:var(--ice-2);max-width:520px;margin:0 0 34px;
+  }
+  .hero-ctas{display:flex;gap:14px;flex-wrap:wrap;}
+  .btn{
+    display:inline-flex;align-items:center;gap:10px;
+    padding:15px 28px;border-radius:12px;font-weight:700;font-size:15px;
+    border:none;cursor:pointer;transition:transform .15s, box-shadow .15s;
+  }
+  .btn:active{transform:scale(.97);}
+  .btn-primary{background:var(--ember);color:#fff;box-shadow:0 10px 30px -8px rgba(255,122,69,.6);}
+  .btn-primary:hover{background:var(--ember-2);}
+  .btn-ghost{background:rgba(255,255,255,0.08);color:#fff;border:1px solid var(--line);}
+  .btn-ghost:hover{background:rgba(255,255,255,0.16);}
+  .btn-whatsapp{background:#25D366;color:#fff;}
+  .btn-whatsapp:hover{background:#1ebe57;}
+
+  .hero-stats{display:flex;gap:32px;margin-top:44px;}
+  .stat-num{font-size:28px;font-weight:900;color:#fff;}
+  .stat-label{font-size:13px;color:var(--ice-2);}
+
+  /* ===== SIGNATURE GAUGE ===== */
+  .gauge-wrap{
+    position:relative;width:100%;max-width:360px;justify-self:center;
+    display:flex;flex-direction:column;align-items:center;gap:14px;
+  }
+  .gauge{position:relative;width:280px;height:280px;}
+  .gauge svg{width:100%;height:100%;transform:rotate(-90deg);}
+  .gauge-track{fill:none;stroke:rgba(255,255,255,0.08);stroke-width:14;}
+  .gauge-fill{
+    fill:none;stroke:url(#gaugeGrad);stroke-width:14;stroke-linecap:round;
+    stroke-dasharray:754;stroke-dashoffset:754;
+    transition:stroke-dashoffset 2.2s cubic-bezier(.2,.8,.2,1);
+  }
+  .gauge-center{
+    position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  }
+  .gauge-temp{font-size:56px;font-weight:900;color:#fff;font-family:'Tajawal',sans-serif;}
+  .gauge-temp small{font-size:22px;font-weight:700;color:var(--ice-2);}
+  .gauge-caption{font-size:13px;color:var(--ice-2);letter-spacing:.5px;}
+  .gauge-label{
+    font-size:14px;color:var(--ice-2);text-align:center;
+  }
+
+  /* ===== SECTION BASE ===== */
+  section{padding:80px 24px;}
+  .section-wrap{max-width:1180px;margin:0 auto;}
+  .section-head{max-width:640px;margin-bottom:48px;}
+  .kicker{color:var(--teal);font-weight:800;font-size:14px;letter-spacing:1px;margin-bottom:10px;display:block;}
+  .section-head h2{font-size:clamp(26px,3.4vw,38px);color:var(--navy);font-weight:900;margin:0 0 14px;}
+  .section-head p{font-size:16px;line-height:1.8;color:var(--slate);}
+
+  /* ===== SERVICES ===== */
+  .services{background:#fff;}
+  .cards-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:22px;}
+  .card{
+    background:var(--paper);border:1px solid #E3EEEF;border-radius:var(--radius);
+    padding:30px 26px;transition:transform .2s, box-shadow .2s, border-color .2s;
+  }
+  .card:hover{transform:translateY(-6px);box-shadow:0 20px 40px -20px rgba(10,30,40,.25);border-color:var(--teal);}
+  .card-icon{
+    width:52px;height:52px;border-radius:14px;background:var(--navy);
+    display:flex;align-items:center;justify-content:center;margin-bottom:18px;
+  }
+  .card-icon svg{width:26px;height:26px;stroke:var(--ember);}
+  .card h3{font-size:19px;color:var(--navy);margin:0 0 10px;font-weight:800;}
+  .card p{font-size:14.5px;line-height:1.8;margin:0;color:var(--slate);}
+
+  /* ===== WHY US ===== */
+  .why{background:var(--navy);color:#fff;}
+  .why .section-head p{color:var(--ice-2);}
+  .why .kicker{color:var(--ember);}
+  .why .section-head h2{color:#fff;}
+  .why-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:26px;}
+  .why-item{display:flex;gap:16px;align-items:flex-start;}
+  .why-num{
+    font-family:'Tajawal',sans-serif;font-weight:900;font-size:15px;color:var(--ember);
+    border:1px solid var(--ember);border-radius:50%;width:34px;height:34px;
+    display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  }
+  .why-item h4{margin:0 0 6px;font-size:16px;color:#fff;}
+  .why-item p{margin:0;font-size:14px;line-height:1.7;color:var(--ice-2);}
+
+  /* ===== ORDER FORM ===== */
+  .order{background:linear-gradient(180deg,#fff 0%, var(--ice) 100%);}
+  .order-box{
+    background:#fff;border-radius:24px;padding:44px;
+    box-shadow:0 30px 60px -30px rgba(10,30,40,.25);border:1px solid #E3EEEF;
+    display:grid;grid-template-columns:1fr 1fr;gap:20px;
+  }
+  .order-box .full{grid-column:1/-1;}
+  .field label{display:block;font-size:13.5px;font-weight:700;color:var(--navy);margin-bottom:8px;}
+  .field input,.field select,.field textarea{
+    width:100%;padding:13px 16px;border-radius:10px;border:1.5px solid #DCE8EA;
+    font-family:'Cairo',sans-serif;font-size:14.5px;background:var(--paper);color:var(--slate);
+    transition:border-color .2s;
+  }
+  .field textarea{resize:vertical;min-height:90px;}
+  .field input:focus,.field select:focus,.field textarea:focus{
+    outline:none;border-color:var(--teal);background:#fff;
+  }
+  .order-submit{
+    display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-top:6px;
+  }
+  #formMsg{font-size:14px;font-weight:700;}
+  #formMsg.ok{color:var(--teal-2);}
+  #formMsg.err{color:var(--ember-2);}
+
+  /* ===== CONTACT / FOOTER ===== */
+  footer{background:#071820;color:var(--ice-2);padding:60px 24px 30px;}
+  .footer-wrap{max-width:1180px;margin:0 auto;display:grid;grid-template-columns:1.2fr 1fr 1fr;gap:40px;}
+  .footer-wrap h4{color:#fff;font-size:16px;margin:0 0 16px;}
+  .footer-wrap p, .footer-wrap a{font-size:14px;line-height:2;color:var(--ice-2);}
+  .footer-wrap a:hover{color:#fff;}
+  .footer-bottom{
+    max-width:1180px;margin:40px auto 0;padding-top:24px;border-top:1px solid var(--line);
+    display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;font-size:13px;color:#5b7580;
+  }
+
+  /* ===== FLOATING WHATSAPP ===== */
+  .float-wa{
+    position:fixed;bottom:24px;left:24px;z-index:600;
+    width:60px;height:60px;border-radius:50%;background:#25D366;
+    display:flex;align-items:center;justify-content:center;
+    box-shadow:0 10px 30px -6px rgba(37,211,102,.6);
+    animation:pulse 2.4s infinite;
+  }
+  .float-wa svg{width:30px;height:30px;fill:#fff;}
+  @keyframes pulse{
+    0%{box-shadow:0 0 0 0 rgba(37,211,102,.5);}
+    70%{box-shadow:0 0 0 14px rgba(37,211,102,0);}
+    100%{box-shadow:0 0 0 0 rgba(37,211,102,0);}
+  }
+
+  @media(max-width:900px){
+    nav.links{display:none;}
+    .burger{display:block;}
+    .hero-wrap{grid-template-columns:1fr;}
+    .gauge-wrap{order:-1;}
+    .order-box{grid-template-columns:1fr;padding:28px;}
+    .footer-wrap{grid-template-columns:1fr;}
+    .hero-stats{gap:22px;flex-wrap:wrap;}
+  }
+  @media(prefers-reduced-motion:reduce){
+    .float-wa{animation:none;}
+    .gauge-fill{transition:none;}
+  }
+
+  /* ===== ADMIN ===== */
+  #adminView{display:none;min-height:100vh;background:var(--navy);color:#fff;padding:40px 24px;}
+  .admin-wrap{max-width:1000px;margin:0 auto;}
+  .admin-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:30px;flex-wrap:wrap;gap:12px;}
+  .admin-top h2{margin:0;font-size:24px;}
+  .lock-box{
+    max-width:380px;margin:120px auto;background:rgba(255,255,255,0.05);
+    border:1px solid var(--line);border-radius:18px;padding:36px;text-align:center;
+  }
+  .lock-box input{
+    width:100%;padding:13px 16px;border-radius:10px;border:1.5px solid var(--line);
+    background:rgba(255,255,255,0.06);color:#fff;font-size:15px;margin:18px 0;text-align:center;
+    font-family:'Cairo',sans-serif;
+  }
+  .order-card{
+    background:rgba(255,255,255,0.05);border:1px solid var(--line);border-radius:14px;
+    padding:20px 22px;margin-bottom:14px;
+  }
+  .order-card-top{display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:10px;}
+  .order-card-top strong{font-size:16px;color:#fff;}
+  .order-tag{
+    font-size:12px;padding:3px 10px;border-radius:999px;font-weight:700;
+  }
+  .tag-new{background:rgba(255,122,69,.18);color:var(--ember);}
+  .tag-done{background:rgba(27,138,140,.2);color:#5FD9DB;}
+  .order-meta{font-size:13.5px;color:var(--ice-2);line-height:1.9;}
+  .order-actions{display:flex;gap:10px;margin-top:12px;}
+  .mini-btn{
+    padding:7px 14px;border-radius:8px;font-size:13px;font-weight:700;border:none;cursor:pointer;
+  }
+  .mini-btn.done{background:var(--teal);color:#fff;}
+  .mini-btn.del{background:rgba(255,255,255,0.08);color:#ff9d8a;}
+  #ordersEmpty{color:var(--ice-2);text-align:center;padding:60px 0;}
+</style>
+</head>
+<body>
+
+<div id="configBanner">⚠️ لازم تضيف بيانات Firebase بتاعتك في أول ملف الكود عشان الطلبات تتسجل (دور على FIREBASE_CONFIG)</div>
+
+<!-- ============ MAIN SITE ============ -->
+<div id="mainView">
+
+<header>
+  <div class="nav-wrap">
+    <div class="brand"><span class="dot"></span>HOSA</div>
+    <nav class="links">
+      <a href="#services">خدماتنا</a>
+      <a href="#why">ليه Hosa</a>
+      <a href="#order">اطلب دلوقتي</a>
+      <a href="#contact">تواصل معنا</a>
+    </nav>
+    <a class="nav-cta" href="#order">اطلب صيانة أو تكييف</a>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="hero-wrap">
+    <div>
+      <span class="eyebrow">🔧 تركيب • صيانة • بيع تكييفات</span>
+      <h1>من الحر لـ<span>الراحة</span>، من غير ما تقلق</h1>
+      <p class="lead">Hosa بتركّب، تصلّح، وتبيعلك تكييفات (سبليت وشباك) بضمان حقيقي وفني يوصلك في نفس اليوم. اطلب أونلاين ونتواصل معاك في دقايق.</p>
+      <div class="hero-ctas">
+        <a class="btn btn-primary" href="#order">📋 اطلب دلوقتي</a>
+        <a class="btn btn-whatsapp" id="heroWaBtn" href="#" target="_blank">
+          <svg viewBox="0 0 32 32" width="20" height="20" fill="currentColor"><path d="M16 0C7.163 0 0 7.163 0 16c0 2.837.746 5.5 2.05 7.805L0 32l8.4-2.05A15.9 15.9 0 0 0 16 32c8.837 0 16-7.163 16-16S24.837 0 16 0zm0 29.09c-2.55 0-4.95-.7-6.99-1.92l-.5-.3-5 1.22 1.24-4.87-.32-.5A13.06 13.06 0 0 1 2.9 16C2.9 8.77 8.77 2.9 16 2.9S29.1 8.77 29.1 16 23.23 29.09 16 29.09zm7.2-9.8c-.4-.2-2.3-1.14-2.66-1.27-.36-.13-.62-.2-.88.2-.26.4-1 1.27-1.23 1.53-.23.26-.45.3-.85.1-.4-.2-1.67-.62-3.18-1.98-1.17-1.05-1.96-2.35-2.2-2.75-.23-.4-.02-.6.18-.8.18-.18.4-.46.6-.7.2-.23.26-.4.4-.66.13-.26.06-.5-.03-.7-.1-.2-.88-2.13-1.2-2.9-.32-.77-.65-.67-.88-.68-.23-.02-.5-.02-.76-.02-.26 0-.7.1-1.06.5-.36.4-1.4 1.36-1.4 3.32s1.43 3.85 1.63 4.12c.2.26 2.8 4.28 6.8 6 .95.4 1.7.65 2.28.83.96.3 1.83.26 2.52.16.77-.12 2.3-.94 2.63-1.85.32-.9.32-1.68.23-1.84-.1-.16-.36-.26-.76-.46z"/></svg>
+          تواصل واتساب
+        </a>
+      </div>
+      <div class="hero-stats">
+        <div><div class="stat-num" data-count="500">0</div><div class="stat-label">تكييف اتركب وصُلّح</div></div>
+        <div><div class="stat-num" data-count="24">0</div><div class="stat-label">ساعة متوسط الاستجابة</div></div>
+        <div><div class="stat-num" data-count="100">0</div><div class="stat-label">% ضمان على الشغل</div></div>
+      </div>
+    </div>
+
+    <div class="gauge-wrap">
+      <div class="gauge">
+        <svg viewBox="0 0 260 260">
+          <defs>
+            <linearGradient id="gaugeGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#FF7A45"/>
+              <stop offset="55%" stop-color="#FFC069"/>
+              <stop offset="100%" stop-color="#33D6D0"/>
+            </linearGradient>
+          </defs>
+          <circle class="gauge-track" cx="130" cy="130" r="120"/>
+          <circle class="gauge-fill" id="gaugeFill" cx="130" cy="130" r="120"/>
+        </svg>
+        <div class="gauge-center">
+          <div class="gauge-temp" id="gaugeTemp">45<small>°</small></div>
+          <div class="gauge-caption">قبل ما نوصل</div>
+        </div>
+      </div>
+      <div class="gauge-label">من ٤٥° لحد ٢٤° — Hosa بيبرّد المكان في نفس الزيارة</div>
+    </div>
+  </div>
+</section>
+
+<section class="services" id="services">
+  <div class="section-wrap">
+    <div class="section-head">
+      <span class="kicker">خدماتنا</span>
+      <h2>كل حاجة عن التكييف، تحت سقف واحد</h2>
+      <p>سواء تكييف جديد، عطل مفاجئ، أو صيانة دورية — فريق Hosa يوصلك بالعدة والخبرة الكفاية.</p>
+    </div>
+    <div class="cards-grid">
+      <div class="card">
+        <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><path d="M4 12h16M4 6h16M4 18h16"/></svg></div>
+        <h3>تركيب تكييفات</h3>
+        <p>تركيب سبليت وشباك بمعايير صح — تفريغ هواء، تثبيت، وتوصيل كهرباء آمن.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><path d="M12 2v4M12 18v4M4.9 4.9l2.8 2.8M16.3 16.3l2.8 2.8M2 12h4M18 12h4M4.9 19.1l2.8-2.8M16.3 7.7l2.8-2.8"/></svg></div>
+        <h3>صيانة وتنظيف دوري</h3>
+        <p>غسيل بالبخار، شحن غاز، وفحص الكمبروسر عشان التكييف يفضل شغال بأعلى كفاءة.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><path d="M3 3h18v14H3zM3 21h18M7 17v4M17 17v4"/></svg></div>
+        <h3>بيع تكييفات</h3>
+        <p>سبليت وشباك بماركات وقدرات مختلفة، مع الضمان الأصلي واستشارة مجانية لاختيار المناسب.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><path d="M12 20a8 8 0 100-16 8 8 0 000 16zM12 8v4l3 2"/></svg></div>
+        <h3>صيانة عاجلة</h3>
+        <p>عطل فجأة في الصيف؟ اطلب دلوقتي ونحاول نوصلك في نفس اليوم.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="why" id="why">
+  <div class="section-wrap">
+    <div class="section-head">
+      <span class="kicker">ليه Hosa</span>
+      <h2>مش بس بنركّب، بنضمن راحتك</h2>
+    </div>
+    <div class="why-grid">
+      <div class="why-item"><div class="why-num">١</div><div><h4>ضمان على كل شغلانة</h4><p>أي تركيب أو صيانة بيتعمل بضمان واضح ومكتوب.</p></div></div>
+      <div class="why-item"><div class="why-num">٢</div><div><h4>فنيين مدربين</h4><p>خبرة في كل أنواع التكييفات وأعطالها الشائعة والنادرة.</p></div></div>
+      <div class="why-item"><div class="why-num">٣</div><div><h4>رد سريع</h4><p>بنتواصل معاك على الواتساب بمجرد ما تطلب.</p></div></div>
+      <div class="why-item"><div class="why-num">٤</div><div><h4>أسعار واضحة</h4><p>معاينة ومعرفة السعر الأول قبل أي التزام.</p></div></div>
+    </div>
+  </div>
+</section>
+
+<section class="order" id="order">
+  <div class="section-wrap">
+    <div class="section-head">
+      <span class="kicker">اطلب دلوقتي</span>
+      <h2>املا البيانات ونتواصل معاك</h2>
+      <p>هيوصلنا طلبك على طول، وممكن كمان تبعته مباشرة على الواتساب.</p>
+    </div>
+    <form class="order-box" id="orderForm">
+      <div class="field"><label>الاسم</label><input type="text" id="f_name" required placeholder="اكتب اسمك"></div>
+      <div class="field"><label>رقم الموبايل</label><input type="tel" id="f_phone" required placeholder="01xxxxxxxxx"></div>
+      <div class="field"><label>المنطقة / العنوان</label><input type="text" id="f_area" required placeholder="المحافظة والمنطقة"></div>
+      <div class="field">
+        <label>نوع الخدمة</label>
+        <select id="f_service">
+          <option>تركيب تكييف جديد</option>
+          <option>صيانة / عطل</option>
+          <option>تنظيف دوري</option>
+          <option>شراء تكييف</option>
+          <option>حاجة تانية</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>نوع التكييف</label>
+        <select id="f_type">
+          <option>سبليت</option>
+          <option>شباك</option>
+          <option>باكدج</option>
+          <option>مش عارف / محتاج استشارة</option>
+        </select>
+      </div>
+      <div class="field"><label>القدرة (حصان) - اختياري</label><input type="text" id="f_power" placeholder="مثال: 1.5 حصان"></div>
+      <div class="field full"><label>تفاصيل إضافية</label><textarea id="f_details" placeholder="اكتب أي تفاصيل عن الطلب أو العطل"></textarea></div>
+      <div class="full order-submit">
+        <button type="submit" class="btn btn-primary">إرسال الطلب</button>
+        <span id="formMsg"></span>
+      </div>
+    </form>
+  </div>
+</section>
+
+<footer id="contact">
+  <div class="footer-wrap">
+    <div>
+      <div class="brand" style="margin-bottom:14px;"><span class="dot"></span>HOSA</div>
+      <p>Hosa لتركيب وصيانة وبيع التكييفات — شغل مضمون وفني قريب منك.</p>
+    </div>
+    <div>
+      <h4>تواصل معنا</h4>
+      <p><a id="footerWaLink" href="#" target="_blank">واتساب: 01014310919</a></p>
+      <p><a id="footerCallLink" href="#">اتصال مباشر</a></p>
+    </div>
+    <div>
+      <h4>روابط</h4>
+      <p><a href="#services">خدماتنا</a></p>
+      <p><a href="#order">اطلب دلوقتي</a></p>
+      <p><a href="#admin" id="adminLink">إدارة</a></p>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© <span id="year"></span> HOSA. كل الحقوق محفوظة.</span>
+    <span>تركيب • صيانة • بيع تكييفات</span>
+  </div>
+</footer>
+
+<a class="float-wa" id="floatWaBtn" href="#" target="_blank" aria-label="تواصل واتساب">
+  <svg viewBox="0 0 32 32"><path d="M16 0C7.163 0 0 7.163 0 16c0 2.837.746 5.5 2.05 7.805L0 32l8.4-2.05A15.9 15.9 0 0 0 16 32c8.837 0 16-7.163 16-16S24.837 0 16 0zm0 29.09c-2.55 0-4.95-.7-6.99-1.92l-.5-.3-5 1.22 1.24-4.87-.32-.5A13.06 13.06 0 0 1 2.9 16C2.9 8.77 8.77 2.9 16 2.9S29.1 8.77 29.1 16 23.23 29.09 16 29.09zm7.2-9.8c-.4-.2-2.3-1.14-2.66-1.27-.36-.13-.62-.2-.88.2-.26.4-1 1.27-1.23 1.53-.23.26-.45.3-.85.1-.4-.2-1.67-.62-3.18-1.98-1.17-1.05-1.96-2.35-2.2-2.75-.23-.4-.02-.6.18-.8.18-.18.4-.46.6-.7.2-.23.26-.4.4-.66.13-.26.06-.5-.03-.7-.1-.2-.88-2.13-1.2-2.9-.32-.77-.65-.67-.88-.68-.23-.02-.5-.02-.76-.02-.26 0-.7.1-1.06.5-.36.4-1.4 1.36-1.4 3.32s1.43 3.85 1.63 4.12c.2.26 2.8 4.28 6.8 6 .95.4 1.7.65 2.28.83.96.3 1.83.26 2.52.16.77-.12 2.3-.94 2.63-1.85.32-.9.32-1.68.23-1.84-.1-.16-.36-.26-.76-.46z"/></svg>
+</a>
+
+</div>
+
+<!-- ============ ADMIN VIEW ============ -->
+<div id="adminView">
+  <div class="admin-wrap">
+    <div id="lockScreen" class="lock-box">
+      <h2 style="margin:0 0 6px;">دخول الإدارة</h2>
+      <p style="color:var(--ice-2);font-size:14px;">اكتب كلمة السر عشان تشوف الطلبات</p>
+      <input type="password" id="adminPass" placeholder="كلمة السر">
+      <button class="btn btn-primary" style="width:100%;justify-content:center;" id="adminLoginBtn">دخول</button>
+      <p id="adminErr" style="color:var(--ember);font-size:13px;display:none;margin-top:10px;">كلمة السر غلط</p>
+      <p style="margin-top:20px;"><a href="#" id="backHome" style="color:var(--ice-2);font-size:13px;">← رجوع للموقع</a></p>
+    </div>
+
+    <div id="dashboard" style="display:none;">
+      <div class="admin-top">
+        <h2>طلبات العملاء</h2>
+        <div style="display:flex;gap:10px;">
+          <a href="#" id="backHome2" class="btn btn-ghost">رجوع للموقع</a>
+          <button class="btn btn-ghost" id="logoutBtn">خروج</button>
+        </div>
+      </div>
+      <div id="ordersList"></div>
+      <div id="ordersEmpty" style="display:none;">لسه مفيش طلبات</div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* =========================================================
+   ضيف بيانات مشروع Firebase بتاعك هنا (اعمل مشروع جديد على
+   console.firebase.google.com واعمل Firestore Database)
+   ========================================================= */
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyDYXkevNJ-MZrK3ezBpOurJZnrRpLldIW4",
+  authDomain: "hosa-c39f5.firebaseapp.com",
+  projectId: "hosa-c39f5",
+  storageBucket: "hosa-c39f5.firebasestorage.app",
+  messagingSenderId: "282393183490",
+  appId: "1:282393183490:web:b118528795a69738a62e1b"
+};
+
+const WHATSAPP_NUMBER = "201014310919"; // رقم واتساب Hosa (بكود مصر 20)
+const ADMIN_PASSWORD = "8220052025";
+
+let db = null;
+const isConfigured = FIREBASE_CONFIG.apiKey && !FIREBASE_CONFIG.apiKey.startsWith("PASTE");
+if (isConfigured) {
+  firebase.initializeApp(FIREBASE_CONFIG);
+  db = firebase.firestore();
+} else {
+  document.getElementById('configBanner').style.display = 'block';
+}
+
+// ---------- WhatsApp links ----------
+function buildWaLink(text){
+  return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(text)}`;
+}
+const defaultWaText = "السلام عليكم، عايز أستفسر عن خدمات التكييفات عندكم";
+document.getElementById('heroWaBtn').href = buildWaLink(defaultWaText);
+document.getElementById('floatWaBtn').href = buildWaLink(defaultWaText);
+document.getElementById('footerWaLink').href = buildWaLink(defaultWaText);
+document.getElementById('footerCallLink').href = "tel:" + WHATSAPP_NUMBER;
+
+// ---------- Gauge animation ----------
+window.addEventListener('load', () => {
+  const fill = document.getElementById('gaugeFill');
+  const tempEl = document.getElementById('gaugeTemp');
+  setTimeout(() => { fill.style.strokeDashoffset = 150; }, 300);
+  let temp = 45;
+  const target = 24;
+  const step = setInterval(() => {
+    temp -= 1;
+    tempEl.innerHTML = temp + "<small>°</small>";
+    if (temp <= target) clearInterval(step);
+  }, 90);
+
+  // stat counters
+  document.querySelectorAll('.stat-num').forEach(el => {
+    const target = parseInt(el.dataset.count, 10);
+    let cur = 0;
+    const inc = Math.max(1, Math.round(target / 40));
+    const t = setInterval(() => {
+      cur += inc;
+      if (cur >= target) { cur = target; clearInterval(t); }
+      el.textContent = cur;
+    }, 30);
+  });
+});
+
+// ---------- Order form ----------
+const orderForm = document.getElementById('orderForm');
+const formMsg = document.getElementById('formMsg');
+
+orderForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const order = {
+    name: document.getElementById('f_name').value.trim(),
+    phone: document.getElementById('f_phone').value.trim(),
+    area: document.getElementById('f_area').value.trim(),
+    service: document.getElementById('f_service').value,
+    acType: document.getElementById('f_type').value,
+    power: document.getElementById('f_power').value.trim(),
+    details: document.getElementById('f_details').value.trim(),
+    status: "new",
+    createdAt: isConfigured ? firebase.firestore.FieldValue.serverTimestamp() : new Date().toISOString()
+  };
+
+  formMsg.textContent = "بيتبعت...";
+  formMsg.className = "";
+
+  try {
+    if (isConfigured) {
+      await db.collection('orders').add(order);
+    }
+    formMsg.textContent = "✅ تم إرسال طلبك، هنتواصل معاك قريب";
+    formMsg.className = "ok";
+
+    const waText = `طلب جديد من موقع Hosa:
+الاسم: ${order.name}
+الموبايل: ${order.phone}
+المنطقة: ${order.area}
+الخدمة: ${order.service}
+نوع التكييف: ${order.acType}
+القدرة: ${order.power || "-"}
+تفاصيل: ${order.details || "-"}`;
+
+    window.open(buildWaLink(waText), '_blank');
+    orderForm.reset();
+  } catch (err) {
+    console.error(err);
+    formMsg.textContent = "❌ حصل خطأ، جرب تاني أو تواصل واتساب مباشرة";
+    formMsg.className = "err";
+  }
+});
+
+document.getElementById('year').textContent = new Date().getFullYear();
+
+// ---------- Admin routing ----------
+const mainView = document.getElementById('mainView');
+const adminView = document.getElementById('adminView');
+const lockScreen = document.getElementById('lockScreen');
+const dashboard = document.getElementById('dashboard');
+
+function showAdmin(){
+  mainView.style.display = 'none';
+  adminView.style.display = 'block';
+  document.getElementById('adminPass').value = '';
+  document.getElementById('adminErr').style.display = 'none';
+  lockScreen.style.display = 'block';
+  dashboard.style.display = 'none';
+}
+function showMain(){
+  adminView.style.display = 'none';
+  mainView.style.display = 'block';
+  history.replaceState(null, '', '#');
+}
+
+document.getElementById('adminLink').addEventListener('click', (e) => {
+  e.preventDefault();
+  location.hash = '#admin';
+  showAdmin();
+});
+document.getElementById('backHome').addEventListener('click', (e)=>{e.preventDefault();showMain();});
+document.getElementById('backHome2').addEventListener('click', (e)=>{e.preventDefault();showMain();});
+
+if (location.hash === '#admin') showAdmin();
+
+document.getElementById('adminLoginBtn').addEventListener('click', () => {
+  const val = document.getElementById('adminPass').value;
+  if (val === ADMIN_PASSWORD) {
+    lockScreen.style.display = 'none';
+    dashboard.style.display = 'block';
+    loadOrders();
+  } else {
+    document.getElementById('adminErr').style.display = 'block';
+  }
+});
+document.getElementById('adminPass').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') document.getElementById('adminLoginBtn').click();
+});
+document.getElementById('logoutBtn').addEventListener('click', () => {
+  dashboard.style.display = 'none';
+  lockScreen.style.display = 'block';
+});
+
+function statusTag(status){
+  return status === 'done'
+    ? '<span class="order-tag tag-done">تم التنفيذ</span>'
+    : '<span class="order-tag tag-new">جديد</span>';
+}
+
+async function loadOrders(){
+  const list = document.getElementById('ordersList');
+  const empty = document.getElementById('ordersEmpty');
+  list.innerHTML = '<p style="color:var(--ice-2);">بيتحمل...</p>';
+
+  if (!isConfigured) {
+    list.innerHTML = '';
+    empty.style.display = 'block';
+    empty.textContent = 'لازم تضبط إعدادات Firebase الأول عشان تقدر تشوف الطلبات هنا';
+    return;
+  }
+
+  try {
+    const snap = await db.collection('orders').orderBy('createdAt', 'desc').get();
+    if (snap.empty) {
+      list.innerHTML = '';
+      empty.style.display = 'block';
+      empty.textContent = 'لسه مفيش طلبات';
+      return;
+    }
+    empty.style.display = 'none';
+    list.innerHTML = '';
+    snap.forEach(doc => {
+      const o = doc.data();
+      const div = document.createElement('div');
+      div.className = 'order-card';
+      div.innerHTML = `
+        <div class="order-card-top">
+          <strong>${o.name || 'بدون اسم'}</strong>
+          ${statusTag(o.status)}
+        </div>
+        <div class="order-meta">
+          📱 ${o.phone || '-'} &nbsp;|&nbsp; 📍 ${o.area || '-'}<br>
+          🔧 ${o.service || '-'} — ${o.acType || '-'} ${o.power ? '(' + o.power + ')' : ''}<br>
+          ${o.details ? '📝 ' + o.details : ''}
+        </div>
+        <div class="order-actions">
+          <button class="mini-btn done" data-id="${doc.id}" data-action="toggle">${o.status === 'done' ? 'رجّعه جديد' : 'تم التنفيذ'}</button>
+          <button class="mini-btn del" data-id="${doc.id}" data-action="delete">حذف</button>
+        </div>
+      `;
+      list.appendChild(div);
+    });
+  } catch (err) {
+    console.error(err);
+    list.innerHTML = '<p style="color:var(--ember);">حصل خطأ في تحميل الطلبات</p>';
+  }
+}
+
+document.getElementById('ordersList').addEventListener('click', async (e) => {
+  const btn = e.target.closest('.mini-btn');
+  if (!btn) return;
+  const id = btn.dataset.id;
+  const action = btn.dataset.action;
+  try {
+    if (action === 'delete') {
+      if (confirm('متأكد عايز تحذف الطلب ده؟')) {
+        await db.collection('orders').doc(id).delete();
+        loadOrders();
+      }
+    } else if (action === 'toggle') {
+      const docRef = db.collection('orders').doc(id);
+      const docSnap = await docRef.get();
+      const cur = docSnap.data().status;
+      await docRef.update({ status: cur === 'done' ? 'new' : 'done' });
+      loadOrders();
+    }
+  } catch (err) {
+    console.error(err);
+    alert('حصل خطأ، جرب تاني');
+  }
+});
+
+window.addEventListener('hashchange', () => {
+  if (location.hash === '#admin') showAdmin();
+  else showMain();
+});
+</script>
+</body>
+</html>
